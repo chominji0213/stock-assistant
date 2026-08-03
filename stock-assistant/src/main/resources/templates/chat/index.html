@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>일반질의 - 주식 분석 비서</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="/" class="site-title">
+                <span class="logo-mark">📈</span>
+                <span class="logo-text">주식 분석 비서</span>
+            </a>
+            <nav class="auth-nav">
+                <div sec:authorize="isAuthenticated()">
+                    <span sec:authentication="name">아이디</span>
+                    <form action="/logout" method="post" class="logout-form">
+                        <button type="submit" class="link-button">로그아웃</button>
+                    </form>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>메뉴</h2>
+            <ul>
+                <li><a th:href="@{/general-chat}" class="active">일반질의</a></li>
+                <li><a th:href="@{/account-analysis}">계좌분석</a></li>
+            </ul>
+        </aside>
+
+        <section class="content">
+            <div class="content-header">
+                <h2>일반질의</h2>
+            </div>
+
+            <div style="padding:16px 0;">
+                <p th:if="${errorMessage}" class="field-hint hint-error" th:text="${errorMessage}"></p>
+
+                <form action="/general-chat" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <textarea name="question" rows="3" placeholder="예: PER이 뭐야? / 삼성전자 지금 어때?" th:text="${question}"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="chat-image">이미지 첨부 (선택, 예: 뉴스 캡처)</label>
+                        <input type="file" id="chat-image" name="image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn-submit">질문하기</button>
+                </form>
+
+                <div th:if="${answer}" class="form-group" style="margin-top:24px;">
+                    <label>답변</label>
+                    <div style="background:#f7f8fa; border-radius:8px; padding:14px; font-size:14px; line-height:1.6; white-space:pre-wrap;" th:text="${answer}"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 - 주식 분석 비서</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="/" class="site-title">
+                <span class="logo-mark">📈</span>
+                <span class="logo-text">주식 분석 비서</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="auth-wrap">
+        <div class="auth-card">
+            <h1 class="auth-title">회원가입</h1>
+			
+            <form class="signup-form" action="/signup" method="post">
+            	<p th:if="${errorMessage}" class="field-hint hint-error" th:text="${errorMessage}"></p>
+                <div class="form-group">
+                    <label for="userId">아이디</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="userId" name="userId" placeholder="영문, 숫자 4~16자">
+                        <button type="button" class="btn-check" data-check="login-id">중복확인</button>
+                    </div>
+                    <!-- 중복체크 결과 나오는곳 -->
+                    <span class="field-hint" id="userIdHint"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" placeholder="영문, 숫자, 특수문자 조합 8~20자">
+                </div>
+
+                <div class="form-group">
+                    <label for="passwordConfirm">비밀번호 확인</label>
+                    <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요">
+                    <span class="field-hint" id="passwordHint"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="nickname">닉네임</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="nickname" name="nickname" placeholder="2~10자">
+                        <button type="button" class="btn-check" data-check="nickname">중복확인</button>
+                    </div>
+                    <!-- 중복체크 결과 나오는곳 -->
+                    <span class="field-hint" id="nicknameHint"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" placeholder="example@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">전화번호</label>
+                    <input type="tel" id="phone" name="phone" placeholder="- 없이 숫자만 입력">
+                </div>
+
+                <div class="form-group">
+                    <label>프로필 이미지</label>
+                    <div class="profile-upload">
+                        <div class="profile-preview" id="profilePreview">
+                            <span>미리보기</span>
+                        </div>
+                        <label class="btn-upload" for="profileImage">이미지 선택</label>
+                        <input type="file" id="profileImage" name="profileImage" accept="image/*" hidden>
+                    </div>
+                </div>
+
+                <div class="agreement-box">
+                    <label class="agreement-all">
+                        <input type="checkbox" id="agreeAll">
+                        <span>전체 동의</span>
+                    </label>
+                    <div class="agreement-item">
+                        <label>
+                            <input type="checkbox" class="agree-required" name="agreeTerms">
+                            <span>[필수] 이용약관 동의</span>
+                        </label>
+                        <a href="#" class="agreement-link">보기</a>
+                    </div>
+                    <div class="agreement-item">
+                        <label>
+                            <input type="checkbox" class="agree-required" name="agreePrivacy">
+                            <span>[필수] 개인정보 수집 및 이용 동의</span>
+                        </label>
+                        <a href="#" class="agreement-link">보기</a>
+                    </div>
+                    <div class="agreement-item">
+                        <label>
+                            <input type="checkbox" name="agreeMarketing">
+                            <span>[선택] 마케팅 정보 수신 동의</span>
+                        </label>
+                        <a href="#" class="agreement-link">보기</a>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">가입하기</button>
+            </form>
+
+            <p class="auth-footer">
+                이미 계정이 있으신가요? <a href="/login">로그인</a>
+            </p>
+        </div>
+    </main>
+
+    <script>
+    (function () {
+        let agreeAll = document.getElementById('agreeAll');
+        let allChecks = document.querySelectorAll('.agreement-box input[type="checkbox"]');
+
+        agreeAll.addEventListener('change', function () {
+            allChecks.forEach(function (chk) { chk.checked = agreeAll.checked; });
+        });
+
+        allChecks.forEach(function (chk) {
+            chk.addEventListener('change', function () {
+                agreeAll.checked = Array.prototype.every.call(allChecks, function (c) { return c.checked; });
+            });
+        });
+
+        let password = document.getElementById('password');
+        let passwordConfirm = document.getElementById('passwordConfirm');
+        let passwordHint = document.getElementById('passwordHint');
+
+        function checkPasswordMatch() {
+            if (!passwordConfirm.value) {
+                passwordHint.textContent = '';
+                passwordHint.className = 'field-hint';
+                return;
+            }
+            if (password.value === passwordConfirm.value) {
+                passwordHint.textContent = '비밀번호가 일치합니다.';
+                passwordHint.className = 'field-hint hint-ok';
+            } else {
+                passwordHint.textContent = '비밀번호가 일치하지 않습니다.';
+                passwordHint.className = 'field-hint hint-error';
+            }
+        }
+        password.addEventListener('input', checkPasswordMatch);
+        passwordConfirm.addEventListener('input', checkPasswordMatch);
+
+        let profileImage = document.getElementById('profileImage');
+        let profilePreview = document.getElementById('profilePreview');
+        
+        profileImage.addEventListener('change', function () {
+        	let file = profileImage.files[0];
+            if (!file) {
+            	return;
+            }
+            
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                profilePreview.style.backgroundImage = 'url(' + e.target.result + ')';
+                profilePreview.textContent = '';
+            };
+            reader.readAsDataURL(file);
+        });
+    })();
+    
+    document.querySelectorAll('.btn-check').forEach(function(btn) {
+    	btn.addEventListener('click', function() {
+    		const type = btn.dataset.check;
+    		const inputId = (type === 'login-id' ? 'userId' : 'nickname');	// html 태그 안에 data-check의 값을 읽어옴
+    		const input = document.getElementById(inputId);
+    		const hint = document.getElementById(inputId + 'Hint');
+    		const value = input.value.trim();
+
+    		if(!value) {
+    			hint.textContent = '값을 입력해주세요.';
+    			hint.className = 'field-hint hint-error';
+    			return;
+    		}
+
+    		fetch('/api/members/check-' + type + '?value=' + encodeURIComponent(value))
+    		.then(function(res) {
+    			return res.json();	// 성공했을시 json으로 반환
+    		})
+    		.then(function(du) {
+    			if(du) {
+    				hint.textContent = "이미 사용중입니다.";
+    				hint.className = 'field-hint hint-error';
+    			} else {
+    				hint.textContent = '사용 가능합니다.';
+    				hint.className = 'field-hint hint-ok';
+    			}
+    		})
+    	})
+    })
+    </script>
+</body>
+</html>

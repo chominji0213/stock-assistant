@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>주식 분석 비서</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="/" class="site-title">
+                <span class="logo-mark">📈</span>
+                <span class="logo-text">주식 분석 비서</span>
+            </a>
+            <nav class="auth-nav">
+            	<!-- 로그인 안 했을 때 -->
+	            <div sec:authorize="isAnonymous()">
+	            	<a href="/login">로그인</a>
+                	<a href="/signup" class="btn-signup">회원가입</a>
+	            </div>
+	            <!-- 로그인 했을 때 -->
+				<div sec:authorize="isAuthenticated()">
+			        <span sec:authentication="name">아이디</span>
+			        <form action="/logout" method="post" class="logout-form">
+			            <button type="submit" class="link-button">로그아웃</button>
+			        </form>
+			    </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="content-header">
+            <h2>메뉴 선택</h2>
+        </div>
+        <ul class="post-list">
+            <li class="post-row">
+                <a th:href="@{/account-analysis}" class="post-title">계좌분석</a>
+            </li>
+            <li class="post-row">
+                <a th:href="@{/general-chat}" class="post-title">일반질의</a>
+            </li>
+        </ul>
+    </main>
+</body>
+</html>

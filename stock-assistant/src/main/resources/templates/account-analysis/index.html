@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>계좌분석 - 주식 분석 비서</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="/" class="site-title">
+                <span class="logo-mark">📈</span>
+                <span class="logo-text">주식 분석 비서</span>
+            </a>
+            <nav class="auth-nav">
+                <div sec:authorize="isAuthenticated()">
+                    <span sec:authentication="name">아이디</span>
+                    <form action="/logout" method="post" class="logout-form">
+                        <button type="submit" class="link-button">로그아웃</button>
+                    </form>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>메뉴</h2>
+            <ul>
+                <li><a th:href="@{/general-chat}">일반질의</a></li>
+                <li><a th:href="@{/account-analysis}" class="active">계좌분석</a></li>
+            </ul>
+        </aside>
+
+        <section class="content">
+            <div class="content-header">
+                <h2>계좌분석</h2>
+            </div>
+
+            <div style="padding:16px 0;">
+                <p th:if="${errorMessage}" class="field-hint hint-error" th:text="${errorMessage}"></p>
+
+                <form action="/account-analysis" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="image">계좌 캡처 이미지</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn-submit">분석하기</button>
+                </form>
+
+                <div th:if="${confidenceScore != null}" style="margin-top:24px;">
+                    <div>
+                        신뢰도 점수: <b th:text="${confidenceScore}"></b>/100
+                        <span th:if="${isReliable}" class="badge" style="background:#dcfce7;color:#166534;">신뢰 가능</span>
+                        <span th:unless="${isReliable}" class="badge" style="background:#fee2e2;color:#991b1b;">재확인 필요</span>
+                    </div>
+                    <div style="margin-top:6px;color:#9aa0a6;font-size:13px;" th:text="${confidenceReason}"></div>
+
+                    <div th:if="${issues != null and !issues.isEmpty()}" style="margin-top:6px;color:#ff5a3c;font-size:13px;">
+                        ⚠ <span th:text="${#strings.listJoin(issues, ', ')}"></span>
+                    </div>
+
+                    <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:14px;" th:if="${holdings != null and !holdings.isEmpty()}">
+                        <tr style="border-bottom:2px solid #111;">
+                            <th style="text-align:left;padding:6px 4px;">종목명</th>
+                            <th style="text-align:right;padding:6px 4px;">수량</th>
+                            <th style="text-align:right;padding:6px 4px;">평가금액</th>
+                            <th style="text-align:right;padding:6px 4px;">수익률(%)</th>
+                        </tr>
+                        <tr th:each="h : ${holdings}" style="border-bottom:1px solid #e5e7eb;">
+                            <td style="padding:6px 4px;" th:text="${h['stock_name']}"></td>
+                            <td style="text-align:right;padding:6px 4px;" th:text="${h['quantity']}"></td>
+                            <td style="text-align:right;padding:6px 4px;" th:text="${h['eval_amount']}"></td>
+                            <td style="text-align:right;padding:6px 4px;" th:text="${h['profit_loss_rate']}"></td>
+                        </tr>
+                    </table>
+                    <div th:if="${holdings == null or holdings.isEmpty()}" style="margin-top:10px;">인식된 종목이 없습니다.</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

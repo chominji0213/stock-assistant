@@ -1,0 +1,6 @@
+# 이 저장소는 stock-assistant(Spring Boot)와 stock-assistant-ai(FastAPI)만 관리합니다.
+# 나머지는 기획/개인 자료라 버전관리 대상이 아닙니다.
+/docs/
+/plan/
+/test_image/
+/.metadata/
