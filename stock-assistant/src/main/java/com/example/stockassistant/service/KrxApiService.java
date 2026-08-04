@@ -11,7 +11,7 @@ import org.springframework.web.client.RestClient;
 import lombok.RequiredArgsConstructor;
 
 // KRX(한국거래소) API 호출 서비스
-// stk_bydd_trd는 KRX 승인 전이라 미검증 상태. 승인나면 실제로 호출해서 확인 필요.
+// stk_bydd_trd 2026-08-03 실제 호출 테스트 완료 (정상 응답 확인됨)
 @Service
 @RequiredArgsConstructor
 public class KrxApiService {
@@ -21,7 +21,7 @@ public class KrxApiService {
 	@Value("${krx.auth.key}")
 	private String krxAuthKey;
 
-	private static final String BASE_URL = "http://data-dbg.krx.co.kr/svc/apis/sto/stk_bydd_trd";
+	private static final String BASE_URL = "https://data-dbg.krx.co.kr/svc/apis/sto/stk_bydd_trd";
 
 	// 기준일(basDd) 코스피 전종목 시세 전체 조회 (시가총액 MKTCAP 포함)
 	// KRX는 인증키를 헤더(AUTH_KEY)로 보내야 함

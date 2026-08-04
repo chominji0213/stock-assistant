@@ -34,6 +34,10 @@ public class StockMaster {
 	@Column(name = "corp_code", length = 8)
 	private String corpCode;
 
+	// 법인등록번호 (13자리). 금융위원회 기업재무정보 API(getSummFinaStat_V2)는 corp_code가 아니라 이 값을 요구함
+	@Column(name = "crno", length = 13)
+	private String crno;
+
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();
 

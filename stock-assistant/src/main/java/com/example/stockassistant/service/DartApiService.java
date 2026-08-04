@@ -73,6 +73,21 @@ public class DartApiService {
 		return nodes.item(0).getTextContent().trim();
 	}
 
+	// 기업개황 조회 - 법인등록번호(jurir_no) 추출용. corp_code 필요 (corp-code-sync 먼저 실행돼 있어야 함)
+	// 금융위원회 기업재무정보 API가 요구하는 crno가 바로 이 jurir_no임 (DART corp_code와는 별개 값)
+	@SuppressWarnings("unchecked")
+	public String getCorporateRegNo(String corpCode) {
+		String url = "https://opendart.fss.or.kr/api/company.json"
+				+ "?crtfc_key=" + dartApiKey
+				+ "&corp_code=" + corpCode;
+		Map<String, Object> body = restClient.get().uri(url).retrieve().body(Map.class);
+		if (body == null || body.get("jurir_no") == null) {
+			return null;
+		}
+		String jurirNo = body.get("jurir_no").toString().trim();
+		return jurirNo.isBlank() ? null : jurirNo;
+	}
+
 	// 특정 회사 공시 목록 조회 (최근 1년, 최신순 10건)
 	// 날짜 범위 안 넣으면 오늘 하루만 검색돼서 주말엔 결과 0건 나옴 -> 1년치로 넉넉하게
 	// disclosure 캐시로 30분 저장

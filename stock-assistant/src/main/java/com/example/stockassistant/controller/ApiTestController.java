@@ -43,6 +43,27 @@ public class ApiTestController {
 		return "corp_code 업데이트 완료: " + updated + "건";
 	}
 
+	// Top20 종목별 crno(법인등록번호) 동기화. corp_code가 이미 채워져 있어야 조회 가능 (corp-code-sync 먼저 실행 필요)
+	// 종목 수가 20개뿐이라 순차 호출로 충분
+	@GetMapping("/api-test/dart/crno-sync")
+	public String syncCrno() {
+		int updated = 0;
+		int skipped = 0;
+		for (StockMaster stock : stockMasterRepository.findAll()) {
+			if (stock.getCorpCode() == null) {
+				skipped++;
+				continue;
+			}
+			String crno = dartApiService.getCorporateRegNo(stock.getCorpCode());
+			if (crno != null) {
+				stock.setCrno(crno);
+				stockMasterRepository.save(stock);
+				updated++;
+			}
+		}
+		return "crno 업데이트 완료: " + updated + "건 (corp_code 없어서 스킵: " + skipped + "건)";
+	}
+
 	// 특정 종목의 최근 공시 목록 조회 (corp_code는 위 sync를 먼저 실행해야 채워져 있음)
 	@GetMapping("/api-test/dart/disclosure/{stockCode}")
 	public Object getDisclosure(@PathVariable String stockCode) {

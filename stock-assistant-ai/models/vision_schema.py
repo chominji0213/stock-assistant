@@ -27,5 +27,5 @@ class VisionExtractionResult(BaseModel):
     is_reliable: bool = Field(description="confidence_score가 임계값(70) 이상이면 true")
 
 
-# 신뢰도체크 분기 노드에서 쓰는 임계값. 여기서만 바꾸면 전체 로직에 반영되도록 상수로 분리.
+# 신뢰도체크 분기 노드에서 쓰는 임계값
 CONFIDENCE_THRESHOLD = 70
