@@ -11,7 +11,7 @@ class AccountDiagnosisState(TypedDict):
     vision_result: Optional[VisionExtractionResult] #Optional: 값이 들어올수도있고, None일수도 있음
 
     # 신뢰도체크 분기 노드가 정하는 다음 경로
-    branch: Optional[Literal["proceed", "retry"]]
+    branch: Optional[Literal["proceed", "retry"]]   #진행 OR 재시도
 
     # Top20 검증 노드 출력(Top20에 없는 종목명 목록)
     unmatched_stocks: Optional[list[str]]   
