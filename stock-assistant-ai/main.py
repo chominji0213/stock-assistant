@@ -13,9 +13,15 @@ from langchain_core.messages import HumanMessage
 from models.vision_schema import VisionExtractionResult
 from services.vision_prompt import VISION_SYSTEM_PROMPT
 
+from routers import account_diagnosis_router, qa_router
+
 load_dotenv()
 
 app = FastAPI(title="AI 주식 어시스턴트")
+
+# 계좌진단/일반질의 LangGraph 플로우를 실제로 태우는 라우터
+app.include_router(account_diagnosis_router.router)
+app.include_router(qa_router.router)
 
 # 데모용 프론트(정적 HTML, file://로 열거나 별도 포트)에서 바로 fetch 할 수 있도록 전체 허용.
 # 나중에 Spring Boot를 통해서만 호출하게 되면 좁혀도 됨.
@@ -89,3 +95,7 @@ async def analyze_account_image(image: UploadFile = File(...)):
 
     result: VisionExtractionResult = vision_llm.invoke([message])
     return result.model_dump()
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

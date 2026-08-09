@@ -4,3 +4,6 @@
 /plan/
 /test_image/
 /.metadata/
+test_chroma.py
+test_gemini.py
+test_gemini_vision.py

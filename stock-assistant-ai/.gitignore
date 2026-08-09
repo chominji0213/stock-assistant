@@ -3,6 +3,5 @@ venv/
 __pycache__/
 *.pyc
 chroma_db/
-test_chroma.py
-test_gemini.py
-test_gemini_vision.py
+test_*.py
+samples/

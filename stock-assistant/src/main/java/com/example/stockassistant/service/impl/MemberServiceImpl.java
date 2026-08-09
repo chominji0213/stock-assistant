@@ -1,4 +1,4 @@
-package com.example.stockassistant.service;
+package com.example.stockassistant.service.impl;
 
 
 import java.time.LocalDateTime;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.stockassistant.domain.Member;
 import com.example.stockassistant.dto.SignupForm;
 import com.example.stockassistant.repository.MemberRepository;
+import com.example.stockassistant.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 

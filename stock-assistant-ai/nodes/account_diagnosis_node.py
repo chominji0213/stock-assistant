@@ -263,7 +263,7 @@ def build_report_context(state:AccountDiagnosisState) -> str:
 
     return '\n'.join(lines)
 
-#Gemini 응답 content에서 순수 텍스트만 뽑아내는 함수
+#Gemini 응답 content에서 텍스트만 뽑아내는 함수
 def extract_report_text(content) -> str:
     if isinstance(content, str):
         return content
