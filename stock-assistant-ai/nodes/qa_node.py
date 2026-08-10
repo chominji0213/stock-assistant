@@ -103,7 +103,21 @@ def qa_node(state: QAState) -> dict:
 
     question = state['question']
     today_str = f"오늘 날짜는 {date.today().isoformat()}입니다."
-    ai_message = llm_with_tools.invoke([HumanMessage(content=f"{today_str}\n{question}")])
+    text_content = f"{today_str}\n{question}"
+
+    # 뉴스 캡처 등 이미지가 (여러 장) 같이 첨부된 경우 -> 멀티모달 메시지로 구성
+    images = state.get('images') or []
+    if images:
+        message_content = [{"type": "text", "text": text_content}]
+        for img in images:
+            message_content.append({
+                "type": "image_url",
+                "image_url": f"data:{img['mime']};base64,{img['base64']}",
+            })
+    else:
+        message_content = text_content
+
+    ai_message = llm_with_tools.invoke([HumanMessage(content=message_content)])
     #rprint(ai_message)
 
     tool_results = []
@@ -120,14 +134,27 @@ def answer_node(state: QAState) -> dict:
 
     context_text = build_answer_context(state)
 
+    # 이미지가 첨부된 질문이면, 답변 생성 단계에서도 이미지를 같이 보고 답하도록 멀티모달로 구성
+    # (qa_node는 도구 선택을 위해서만 이미지를 봤고, 그때의 답변 텍스트는 버려지므로 여기서 다시 이미지를 넣어줘야 함)
+    images = state.get('images') or []
+    if images:
+        human_content = [{"type": "text", "text": context_text}]
+        for img in images:
+            human_content.append({
+                "type": "image_url",
+                "image_url": f"data:{img['mime']};base64,{img['base64']}",
+            })
+    else:
+        human_content = context_text
+
     messages = [
-        SystemMessage(content=QA_SYSTEM_PROMPT),   
-        HumanMessage(content=context_text) 
+        SystemMessage(content=QA_SYSTEM_PROMPT),
+        HumanMessage(content=human_content)
     ]
 
     result = llm.invoke(messages)   #LLM 호출
 
-    return {'answer': extract_report_text(result.content)} 
+    return {'answer': extract_report_text(result.content)}
 
 
 
@@ -137,6 +164,9 @@ def build_answer_context(state: QAState) -> str:
     lines = []
 
     lines.append(f"[질문] {state['question']}")
+    images = state.get('images') or []
+    if images:
+        lines.append(f'[첨부 이미지] {len(images)}장 있음 (아래 이미지들을 참고해서 답변할 것)')
     lines.append('[도구 실행 결과]')
 
     for result in state.get('tool_results') or []:

@@ -29,18 +29,27 @@
         </div>
     </header>
 
-    <main class="content">
-        <div class="content-header">
-            <h2>메뉴 선택</h2>
+    <main style="max-width:1080px;margin:0 auto;padding:0 20px 60px;">
+        <section class="hero">
+            <span class="hero-eyebrow">AI 주식 분석 비서</span>
+            <h1>보유 종목 진단부터 질문까지, 한 번에</h1>
+            <p>계좌를 업로드하거나 궁금한 걸 바로 물어보세요.</p>
+        </section>
+
+        <div class="feature-grid">
+            <a th:href="@{/account-analysis}" class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3>계좌분석</h3>
+                <p>계좌 캡처 이미지를 업로드하면 보유 종목을 인식하고 0~100점으로 진단해드려요.</p>
+                <span class="feature-arrow">분석하러 가기 →</span>
+            </a>
+            <a th:href="@{/general-chat}" class="feature-card">
+                <span class="feature-icon">💬</span>
+                <h3>일반질의</h3>
+                <p>PER이 뭔지, 종목 시세나 공시가 어떤지 자연스럽게 물어보고 답을 받아보세요.</p>
+                <span class="feature-arrow">질문하러 가기 →</span>
+            </a>
         </div>
-        <ul class="post-list">
-            <li class="post-row">
-                <a th:href="@{/account-analysis}" class="post-title">계좌분석</a>
-            </li>
-            <li class="post-row">
-                <a th:href="@{/general-chat}" class="post-title">일반질의</a>
-            </li>
-        </ul>
     </main>
 </body>
 </html>

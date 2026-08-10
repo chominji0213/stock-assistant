@@ -28,16 +28,19 @@ class AccountDiagnosisState(TypedDict):
     error: Optional[str]                    # 실패 시 사용자에게 보여줄 메시지
 
 class QAState(TypedDict):
-    """일반질의 흐름: 질문 -> Tool Calling(시세/공시/재무정보/용어사전) -> 답변생성"""
+    """일반질의 흐름: 질문(+이미지) -> Tool Calling(시세/공시/재무정보/용어사전) -> 답변생성"""
 
     #질문
     question: str
 
-    # LLM이 선택한 도구+파라미터
-    tool_calls: Optional[list[dict]]      
+    # 뉴스 캡처 등 첨부 이미지 (선택, 여러 장 가능) - 각 원소: {"base64": ..., "mime": ...}
+    images: Optional[list[dict]]
 
-    # 각 도구 호출 결과  
-    tool_results: Optional[list[dict]]      
+    # LLM이 선택한 도구+파라미터
+    tool_calls: Optional[list[dict]]
+
+    # 각 도구 호출 결과
+    tool_results: Optional[list[dict]]
 
     #최종답
     answer: Optional[str]

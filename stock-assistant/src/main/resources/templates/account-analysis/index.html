@@ -37,47 +37,73 @@
                 <h2>계좌분석</h2>
             </div>
 
-            <div style="padding:16px 0;">
+            <div>
                 <p th:if="${errorMessage}" class="field-hint hint-error" th:text="${errorMessage}"></p>
 
                 <form action="/account-analysis" method="post" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="image">계좌 캡처 이미지</label>
-                        <input type="file" id="image" name="image" accept="image/*">
+                    <div class="dropzone">
+                        <!-- <div class="dropzone-icon">🖼️</div> -->
+                        <p>보유 종목이 보이는 계좌 캡처 이미지를 올려주세요</p>
+                        <div class="file-upload" style="justify-content:center;">
+                            <label class="btn-upload" for="image">이미지 선택</label>
+                            <span class="file-name" id="imageFileName">선택된 파일 없음</span>
+                        </div>
+                        <input type="file" id="image" name="image" accept="image/*" hidden>
                     </div>
-                    <button type="submit" class="btn-submit">분석하기</button>
+                    <button type="submit" class="btn-submit" id="analysisSubmitBtn" style="margin-top:16px;">
+                        <span class="spinner" id="analysisSpinner" hidden></span>
+                        <span id="analysisSubmitLabel">분석하기</span>
+                    </button>
                 </form>
 
-                <div th:if="${confidenceScore != null}" style="margin-top:24px;">
-                    <div>
-                        신뢰도 점수: <b th:text="${confidenceScore}"></b>/100
-                        <span th:if="${isReliable}" class="badge" style="background:#dcfce7;color:#166534;">신뢰 가능</span>
-                        <span th:unless="${isReliable}" class="badge" style="background:#fee2e2;color:#991b1b;">재확인 필요</span>
+                <div th:if="${confidenceScore != null}">
+                    <div class="score-panel">
+                        <div class="score-ring"><span th:text="${confidenceScore}"></span></div>
+                        <div class="score-meta">
+                            <span class="badge badge-success" th:if="${isReliable}">신뢰 가능</span>
+                            <span class="badge badge-danger" th:unless="${isReliable}">재확인 필요</span>
+                            <div class="score-reason" th:text="${confidenceReason}"></div>
+                        </div>
                     </div>
-                    <div style="margin-top:6px;color:#9aa0a6;font-size:13px;" th:text="${confidenceReason}"></div>
 
-                    <div th:if="${issues != null and !issues.isEmpty()}" style="margin-top:6px;color:#ff5a3c;font-size:13px;">
+                    <div class="score-issue" th:if="${issues != null and !issues.isEmpty()}">
                         ⚠ <span th:text="${#strings.listJoin(issues, ', ')}"></span>
                     </div>
 
-                    <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:14px;" th:if="${holdings != null and !holdings.isEmpty()}">
-                        <tr style="border-bottom:2px solid #111;">
-                            <th style="text-align:left;padding:6px 4px;">종목명</th>
-                            <th style="text-align:right;padding:6px 4px;">수량</th>
-                            <th style="text-align:right;padding:6px 4px;">평가금액</th>
-                            <th style="text-align:right;padding:6px 4px;">수익률(%)</th>
+                    <table class="holdings-table" th:if="${holdings != null and !holdings.isEmpty()}">
+                        <tr>
+                            <th>종목명</th>
+                            <th>수량</th>
+                            <th>평가금액</th>
+                            <th>수익률(%)</th>
                         </tr>
-                        <tr th:each="h : ${holdings}" style="border-bottom:1px solid #e5e7eb;">
-                            <td style="padding:6px 4px;" th:text="${h['stock_name']}"></td>
-                            <td style="text-align:right;padding:6px 4px;" th:text="${h['quantity']}"></td>
-                            <td style="text-align:right;padding:6px 4px;" th:text="${h['eval_amount']}"></td>
-                            <td style="text-align:right;padding:6px 4px;" th:text="${h['profit_loss_rate']}"></td>
+                        <tr th:each="h : ${holdings}">
+                            <td th:text="${h['stock_name']}"></td>
+                            <td th:text="${h['quantity']}"></td>
+                            <td th:text="${h['eval_amount']}"></td>
+                            <td th:text="${h['profit_loss_rate']}"></td>
                         </tr>
                     </table>
-                    <div th:if="${holdings == null or holdings.isEmpty()}" style="margin-top:10px;">인식된 종목이 없습니다.</div>
+                    <div class="empty-state" th:if="${holdings == null or holdings.isEmpty()}">인식된 종목이 없습니다.</div>
                 </div>
             </div>
         </section>
     </div>
+
+    <script>
+    (function () {
+        var input = document.getElementById('image');
+        var name = document.getElementById('imageFileName');
+        input.addEventListener('change', function () {
+            name.textContent = input.files[0] ? input.files[0].name : '선택된 파일 없음';
+        });
+    })();
+
+    document.querySelector('.dropzone').closest('form').addEventListener('submit', function () {
+        document.getElementById('analysisSpinner').classList.add('show');
+        document.getElementById('analysisSubmitLabel').textContent = '분석 중...';
+        document.getElementById('analysisSubmitBtn').disabled = true;
+    });
+    </script>
 </body>
 </html>

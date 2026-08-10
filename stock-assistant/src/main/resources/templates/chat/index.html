@@ -37,26 +37,87 @@
                 <h2>일반질의</h2>
             </div>
 
-            <div style="padding:16px 0;">
+            <div>
+                <p class="chat-hint">궁금한 걸 자연스럽게 물어보세요. 필요하면 이미지도 같이 첨부할 수 있어요.</p>
                 <p th:if="${errorMessage}" class="field-hint hint-error" th:text="${errorMessage}"></p>
 
                 <form action="/general-chat" method="post" enctype="multipart/form-data">
-                    <div class="form-group">
+                    <div class="chat-input-box">
                         <textarea name="question" rows="3" placeholder="예: PER이 뭐야? / 삼성전자 지금 어때?" th:text="${question}"></textarea>
+                        <div class="chat-toolbar">
+                            <label class="icon-btn" for="chat-image" title="이미지 첨부 (여러 장 가능)">📎</label>
+                            <input type="file" id="chat-image" name="images" accept="image/*" multiple hidden>
+                            <span class="file-chip" id="chatFileChip">
+                                <span id="chatFileName"></span>
+                                <button type="button" id="chatFileClear" aria-label="첨부 취소">✕</button>
+                            </span>
+                            <button type="submit" class="btn-submit" id="chatSubmitBtn">
+                                <span class="spinner" id="chatSpinner" hidden></span>
+                                <span id="chatSubmitLabel">질문하기</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="chat-image">이미지 첨부 (선택, 예: 뉴스 캡처)</label>
-                        <input type="file" id="chat-image" name="image" accept="image/*">
-                    </div>
-                    <button type="submit" class="btn-submit">질문하기</button>
                 </form>
 
-                <div th:if="${answer}" class="form-group" style="margin-top:24px;">
-                    <label>답변</label>
-                    <div style="background:#f7f8fa; border-radius:8px; padding:14px; font-size:14px; line-height:1.6; white-space:pre-wrap;" th:text="${answer}"></div>
+                <div th:if="${answer}" class="answer-card">
+                    <div class="answer-body">
+                        <div class="answer-label">답변</div>
+                        <div class="answer-text" th:text="${answer}"></div>
+                    </div>
                 </div>
             </div>
         </section>
     </div>
+
+    <script>
+    (function () {
+        var input = document.getElementById('chat-image');
+        var chip = document.getElementById('chatFileChip');
+        var name = document.getElementById('chatFileName');
+        var clearBtn = document.getElementById('chatFileClear');
+
+        // 클립 아이콘을 여러 번 눌러도 이전에 고른 파일이 사라지지 않고 계속 누적되도록
+        // 직접 모아뒀다가 매번 input.files를 다시 만들어서 넣어줌
+        var selectedFiles = [];
+
+        function syncInputFiles() {
+            var dt = new DataTransfer();
+            selectedFiles.forEach(function (f) { dt.items.add(f); });
+            input.files = dt.files;
+        }
+
+        function updateChip() {
+            if (selectedFiles.length === 1) {
+                name.textContent = selectedFiles[0].name;
+                chip.classList.add('show');
+            } else if (selectedFiles.length > 1) {
+                name.textContent = selectedFiles.length + '개 이미지 첨부됨';
+                chip.classList.add('show');
+            } else {
+                chip.classList.remove('show');
+            }
+        }
+
+        input.addEventListener('change', function () {
+            for (var i = 0; i < input.files.length; i++) {
+                selectedFiles.push(input.files[i]);
+            }
+            syncInputFiles();
+            updateChip();
+        });
+
+        clearBtn.addEventListener('click', function () {
+            selectedFiles = [];
+            syncInputFiles();
+            updateChip();
+        });
+    })();
+
+    document.querySelector('.chat-input-box').closest('form').addEventListener('submit', function () {
+        document.getElementById('chatSpinner').classList.add('show');
+        document.getElementById('chatSubmitLabel').textContent = '답변 생성 중...';
+        document.getElementById('chatSubmitBtn').disabled = true;
+    });
+    </script>
 </body>
 </html>

@@ -25,11 +25,11 @@ public class ChatController {
 
 	@PostMapping("/general-chat")
 	public String ask(@RequestParam String question,
-			@RequestParam(value = "image", required = false) MultipartFile image,
+			@RequestParam(value = "images", required = false) MultipartFile[] images,
 			Model model) {
 		model.addAttribute("question", question);
 		try {
-			model.addAttribute("answer", aiServiceClient.chat(question, image));
+			model.addAttribute("answer", aiServiceClient.qa(question, images));
 		} catch (Exception e) {
 			model.addAttribute("errorMessage", "AI 서비스 호출 실패: " + e.getMessage());
 		}

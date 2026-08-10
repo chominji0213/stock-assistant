@@ -31,23 +31,27 @@ public class AiServiceClient {
 				.body(Map.class);
 	}
 
-	// 일반질의: FastAPI /chat 호출
-	// 뉴스 캡처 같은 이미지가 같이 첨부될 수 있어서 image는 없어도 됨 (null 허용)
+	// 일반질의: FastAPI /qa 호출 (Tool Calling — 시세/공시/재무정보/용어사전)
+	// 뉴스 캡처 같은 이미지가 여러 장 같이 첨부될 수 있어서 images는 없어도/여러 개여도 됨
 	@SuppressWarnings("unchecked")
-	public String chat(String message, MultipartFile image) {
+	public String qa(String question, MultipartFile[] images) {
 		MultipartBodyBuilder builder = new MultipartBodyBuilder();
-		builder.part("message", message);
-		if (image != null && !image.isEmpty()) {
-			try {
-				builder.part("image", image.getResource())
-						.filename(image.getOriginalFilename());
-			} catch (Exception e) {
-				throw new RuntimeException("이미지 전달 준비 실패", e);
+		builder.part("question", question);
+		if (images != null) {
+			for (MultipartFile image : images) {
+				if (image != null && !image.isEmpty()) {
+					try {
+						builder.part("images", image.getResource())
+								.filename(image.getOriginalFilename());
+					} catch (Exception e) {
+						throw new RuntimeException("이미지 전달 준비 실패", e);
+					}
+				}
 			}
 		}
 
 		Map<String, Object> response = restClient.post()
-				.uri(fastApiBaseUrl + "/chat")
+				.uri(fastApiBaseUrl + "/qa")
 				.contentType(MediaType.MULTIPART_FORM_DATA)
 				.body(builder.build())
 				.retrieve()
