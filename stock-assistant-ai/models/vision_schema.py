@@ -15,6 +15,7 @@ class HoldingItem(BaseModel):
     current_price: float | None = Field(default=None, description="현재가")
     eval_amount: float | None = Field(default=None, description="평가금액")
     profit_loss_rate: float | None = Field(default=None, description="수익률(%), 예: -3.2")
+    confidence: float = Field(ge=0.0, le=1.0, description="이 종목 한 줄에 대한 인식 신뢰도 (0.0~1.0)")
 
 
 class VisionExtractionResult(BaseModel):

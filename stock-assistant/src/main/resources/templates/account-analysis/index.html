@@ -60,14 +60,13 @@
                     <div class="score-panel">
                         <div class="score-ring"><span th:text="${confidenceScore}"></span></div>
                         <div class="score-meta">
-                            <span class="badge badge-success" th:if="${isReliable}">신뢰 가능</span>
-                            <span class="badge badge-danger" th:unless="${isReliable}">재확인 필요</span>
-                            <div class="score-reason" th:text="${confidenceReason}"></div>
+                            <span class="badge badge-success">신뢰 가능</span>
+                            <div class="score-reason">인식 신뢰도 점수 (100점 만점)</div>
                         </div>
                     </div>
 
-                    <div class="score-issue" th:if="${issues != null and !issues.isEmpty()}">
-                        ⚠ <span th:text="${#strings.listJoin(issues, ', ')}"></span>
+                    <div class="score-issue" th:if="${unmatchedStocks != null and !unmatchedStocks.isEmpty()}">
+                        ⚠ Top20에 없어 일부 분석에서 제외된 종목: <span th:text="${#strings.listJoin(unmatchedStocks, ', ')}"></span>
                     </div>
 
                     <table class="holdings-table" th:if="${holdings != null and !holdings.isEmpty()}">
@@ -85,6 +84,23 @@
                         </tr>
                     </table>
                     <div class="empty-state" th:if="${holdings == null or holdings.isEmpty()}">인식된 종목이 없습니다.</div>
+
+                    <div class="score-panel" th:if="${diagnosisScore != null}" style="margin-top:16px;">
+                        <div class="score-ring"><span th:text="${diagnosisScore}"></span></div>
+                        <div class="score-meta">
+                            <div class="score-reason">계좌 진단 점수 (100점 만점)</div>
+                            <ul style="margin:6px 0 0; padding-left:18px; font-size:13px; color:var(--text-soft);">
+                                <li th:each="entry : ${scoreBreakdown}" th:text="${entry.key} + ': ' + ${entry.value} + '점'"></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="answer-card" th:if="${finalReport}">
+                        <div class="answer-body">
+                            <div class="answer-label">AI 분석 리포트</div>
+                            <div class="answer-text" th:text="${finalReport}"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

@@ -62,11 +62,15 @@ def reliability_check_node(state: AccountDiagnosisState) -> dict:
 def top20_check_node(state: AccountDiagnosisState) -> dict:
     print('3. Top20 검증 노드 실행')
 
-    top20_names = fetch_top20_stock_names()
+    top20_map = fetch_top20_stock_map()
     unmatched_stocks = []
 
     for holding in state['vision_result'].holdings:
-        if holding.stock_name not in top20_names:
+        if holding.stock_name in top20_map:
+            # Vision은 종목코드를 거의 못 읽어오므로(대부분 화면에 코드가 안 보임),
+            # Top20에서 이름으로 매칭된 코드를 holding에 직접 채워줌 (DB 저장/조회에 사용됨)
+            holding.stock_code = top20_map[holding.stock_name]
+        else:
             unmatched_stocks.append(holding.stock_name)
 
     return {'unmatched_stocks': unmatched_stocks}
@@ -141,13 +145,13 @@ def build_vision_message(text: str, image_b64: str, media_type: str = "image/png
         {"type": "image_url", "image_url": f"data:{media_type};base64,{image_b64}"},
     ])
 
-#spring에서 MasterStock 테이블의 데이터 받아옴
-def fetch_top20_stock_names() -> set[str]:
+#spring에서 MasterStock 테이블의 데이터 받아옴 (종목명 -> 종목코드)
+def fetch_top20_stock_map() -> dict[str, str]:
     response = requests.get(f"{SPRING_BOOT_BASE_URL}/api/stocks/top20")
     response.raise_for_status()
     stocks = response.json()
 
-    return {stock["stockName"] for stock in stocks}
+    return {stock["stockName"]: stock["stockCode"] for stock in stocks}
 
 #수익률 건전성(평균 수익률 + 손실종목비율)
 def calc_profit_score(holdings) -> float:
@@ -259,7 +263,8 @@ def build_report_context(state:AccountDiagnosisState) -> str:
     for item in rag_context:
         term = item['meta']['term']
         source = item['meta']['source']
-        lines.append(f"- {term} (출처: {source}): {item['doc']}")
+        as_of_date = item['meta']['as_of_date']
+        lines.append(f"- {term} (출처: {source}, 기준일: {as_of_date}): {item['doc']}")
 
     return '\n'.join(lines)
 

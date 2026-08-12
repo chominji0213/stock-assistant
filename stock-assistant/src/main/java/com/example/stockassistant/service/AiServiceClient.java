@@ -1,21 +1,30 @@
 package com.example.stockassistant.service;
 
+import java.time.Duration;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class AiServiceClient {
 
+	// FastAPI(AI 서비스)는 Vision/RAG/점수계산/리포트 생성 때문에 느릴 수 있어서,
+	// DART/KRX 호출용 RestClient(5초 타임아웃)를 공유해서 쓰지 않고,
+	// Spring Bean 주입/Qualifier에 의존하지 않도록 여기서 직접 긴 타임아웃 RestClient를 만들어 씀.
 	private final RestClient restClient;
+
+	public AiServiceClient() {
+		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+		factory.setConnectTimeout(Duration.ofSeconds(5));
+		factory.setReadTimeout(Duration.ofSeconds(180));
+		this.restClient = RestClient.builder().requestFactory(factory).build();
+	}
 
 	@Value("${fastapi.base-url}")
 	private String fastApiBaseUrl;
@@ -59,9 +68,10 @@ public class AiServiceClient {
 		return response == null ? null : (String) response.get("answer");
 	}
 
-	// 계좌분석: 업로드받은 이미지를 그대로 FastAPI /vision/analyze로 멀티파트 전달
+	// 계좌분석: 업로드받은 이미지를 FastAPI /account-diagnosis로 전달
+	// (인식 -> 신뢰도체크 -> Top20검증 -> RAG검색 -> 점수계산 -> 리포트까지 한번에 실행됨)
 	@SuppressWarnings("unchecked")
-	public Map<String, Object> analyzeAccountImage(MultipartFile image) {
+	public Map<String, Object> diagnoseAccount(MultipartFile image) {
 		MultipartBodyBuilder builder = new MultipartBodyBuilder();
 		try {
 			builder.part("image", image.getResource())
@@ -71,7 +81,7 @@ public class AiServiceClient {
 		}
 
 		return restClient.post()
-				.uri(fastApiBaseUrl + "/vision/analyze")
+				.uri(fastApiBaseUrl + "/account-diagnosis")
 				.contentType(MediaType.MULTIPART_FORM_DATA)
 				.body(builder.build())
 				.retrieve()

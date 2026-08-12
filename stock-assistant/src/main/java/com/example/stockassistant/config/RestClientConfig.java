@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
-// DART/KRX/FastAPI 같은 외부 API 호출에 쓰는 RestClient 빈 등록
+// DART/KRX 같은 (빠르게 응답하는) 외부 API 호출에 쓰는 RestClient 빈 등록
 // RestTemplate은 스프링 공식문서에서 유지보수 모드로 안내하고 있어서,
 // 신규 프로젝트 기준으로 권장되는 RestClient로 씀
 //
@@ -17,6 +17,10 @@ import org.springframework.web.client.RestClient;
 //
 // 타임아웃을 넣어둔 이유: 외부 API(DART/KRX 등)가 응답을 안 주고 계속 붙잡고 있으면
 // 우리 서버 스레드도 같이 멈춰버리니까, 일정 시간 지나면 포기하고 에러를 내도록 함
+//
+// FastAPI(AI 서비스) 호출은 Vision/RAG/점수계산/리포트 생성 때문에 훨씬 오래 걸려서
+// 이 빈을 같이 쓰면 안 됨 -> AiServiceClient는 이 빈에 의존하지 않고 자기 전용
+// RestClient(긴 타임아웃)를 직접 만들어서 씀
 @Configuration
 public class RestClientConfig {
 
